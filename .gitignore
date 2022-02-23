@@ -37,5 +37,5 @@ npm-debug.log
 # dist folders will be marked as changed after every single change    #
 # in src files                                                        #
 #######################################################################
-# dist/
-# test-dist
+dist/
+test-dist
