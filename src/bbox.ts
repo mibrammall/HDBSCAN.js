@@ -1,4 +1,5 @@
-type Point = [x: number, y: number];
+import { Point } from "./common-types";
+
 export class Bbox {
   minX: number;
   maxX: number;

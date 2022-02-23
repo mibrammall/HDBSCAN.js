@@ -1,8 +1,10 @@
+import { Point } from "./common-types";
+
 const geolib = {
   getDistance,
 };
 
-function getDistance(p1, p2) {
+function getDistance(p1: Point, p2: Point) {
   return 0;
 }
 

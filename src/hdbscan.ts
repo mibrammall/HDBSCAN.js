@@ -1,10 +1,14 @@
 /* eslint-disable max-len */
 import Mst from "./mst";
-import Node from "./node";
+import DataNode from "./data-node";
 import { geolib } from "./geolib";
+import { DataSet, DistanceFunction, Point } from "./common-types";
 
-export default class Hdbscan {
-  constructor(dataset, distFunc = Hdbscan.distFunc.euclidean) {
+export class Hdbscan {
+  distFunc: DistanceFunction;
+  data: Point[];
+  opt: any;
+  constructor(dataset: DataSet, distFunc = DistanceFunctions.euclidean) {
     this.data = dataset.map((val) => val.data);
     this.opt = dataset.map((val) => val.opt);
     this.distFunc = distFunc;
@@ -18,14 +22,14 @@ export default class Hdbscan {
     }
 
     if (data.length === 1) {
-      return new Node({
-        left: null,
-        right: null,
+      return new DataNode({
+        left: undefined,
+        right: undefined,
         data,
         opt,
-        dist: null,
-        parent: null,
-        edge: null,
+        dist: undefined,
+        parent: undefined,
+        edge: undefined,
       });
     }
 
@@ -33,14 +37,14 @@ export default class Hdbscan {
     const edges = mst.getMst();
     const nodes = data.map(
       (val, i) =>
-        new Node({
-          left: null,
-          right: null,
+        new DataNode({
+          left: undefined,
+          right: undefined,
           data: [val],
           opt: [opt[i]],
-          dist: null,
-          parent: null,
-          edge: null,
+          dist: undefined,
+          parent: undefined,
+          edge: undefined,
         })
     );
 
@@ -49,16 +53,23 @@ export default class Hdbscan {
       .sort((val1, val2) => val1.dist - val2.dist)
       .forEach((val) => {
         const { edge, dist } = val;
-        const left = nodes[edge[0]].getAncestor();
-        const right = nodes[edge[1]].getAncestor();
-        const node = new Node({
+
+        if (!edge) {
+          return;
+        }
+
+        const nonNullEdge = edge as number[];
+
+        const left = nodes[nonNullEdge[0]].getAncestor();
+        const right = nodes[nonNullEdge[1]].getAncestor();
+        const node = new DataNode({
           left,
           right,
           data: left.data.concat(right.data),
           opt: left.opt.concat(right.opt),
           dist,
-          parent: null,
-          edge: [data[edge[0]], data[edge[1]]],
+          parent: undefined,
+          edge: [data[nonNullEdge[0]], data[nonNullEdge[1]]],
         });
 
         left.parent = right.parent = root = node;
@@ -67,8 +78,8 @@ export default class Hdbscan {
   }
 }
 
-Hdbscan.distFunc = {
-  euclidean: (p1, p2) => {
+const DistanceFunctions = {
+  euclidean: (p1: Point, p2: Point): number => {
     let sum = 0;
     if (p1.length !== p2.length) {
       throw new Error("unequal dimension in input data");
@@ -78,9 +89,7 @@ Hdbscan.distFunc = {
     }
     return Math.sqrt(sum);
   },
-  geoDist: (p1, p2) => {
-    const gp1 = { longitude: p1[0], latitude: p1[1] };
-    const gp2 = { longitude: p2[0], latitude: p2[1] };
-    return geolib.getDistance(gp1, gp2);
+  geoDist: (p1: Point, p2: Point): number => {
+    return geolib.getDistance(p1, p2);
   },
 };

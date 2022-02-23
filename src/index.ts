@@ -1,1 +1,1 @@
-export {default as default} from './hdbscan';
+export { Hdbscan as default } from "./hdbscan";

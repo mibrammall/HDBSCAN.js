@@ -1,6 +1,11 @@
+import { DistanceFunction, Point } from "./common-types";
+
 /* eslint-disable max-len */
 export default class Mst {
-  constructor(data, distFunc) {
+  data: Point[];
+  distFunc: DistanceFunction;
+  cachedDist: number[][];
+  constructor(data: Point[], distFunc: DistanceFunction) {
     this.data = data;
     this.distFunc = distFunc;
     this.cachedDist = [];
@@ -19,9 +24,9 @@ export default class Mst {
     }
   }
 
-  static findMinIndex(arr, indexToConsider) {
+  static findMinIndex(arr: number[], indexToConsider: Set<number>): number {
     if (!arr || arr.length === 0) {
-      throw new Error('Empty array!');
+      throw new Error("Empty array!");
     }
     let min = Number.MAX_VALUE;
     let index = -1;
@@ -37,13 +42,13 @@ export default class Mst {
   getMst() {
     const data = this.data;
     if (!data || data.length <= 1) {
-      throw new Error('Less than two points!');
+      throw new Error("Less than two points!");
     }
 
     const n = data.length;
     const distance = data.map(() => Number.MAX_VALUE);
-    const pointRemained = new Set(data.map((val, i) => i));
-    const parent = data.map(() => null);
+    const pointRemained = new Set<number>(data.map((_, i: number) => i));
+    const parent = data.map(() => 0) as number[];
     const edges = [];
 
     for (let i = 0; i < n; i += 1) {
@@ -51,7 +56,7 @@ export default class Mst {
       pointRemained.delete(minIndex);
       edges.push({
         edge: [minIndex, parent[minIndex]],
-        dist: distance[minIndex]
+        dist: distance[minIndex],
       });
 
       pointRemained.forEach((val) => {
@@ -64,5 +69,4 @@ export default class Mst {
     }
     return edges.slice(1);
   }
-
 }
